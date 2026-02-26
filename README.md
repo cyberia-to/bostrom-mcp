@@ -4,10 +4,28 @@
 
 87 tools: 44 read + 43 write. Read tools work with zero configuration. Write tools require a wallet mnemonic.
 
-## Quick start
+## Installation
+
+### Option 1: Claude Desktop
+
+Open **Settings > Developer > Edit Config** and add:
 
 ```jsonc
-// Claude Desktop / Cursor / any MCP client
+{
+  "mcpServers": {
+    "bostrom": {
+      "command": "npx",
+      "args": ["-y", "bostrom-mcp"]
+    }
+  }
+}
+```
+
+Restart Claude Desktop. You should see the Bostrom tools in the tool list.
+
+To enable write tools (send tokens, create cyberlinks, etc.), add your wallet mnemonic:
+
+```jsonc
 {
   "mcpServers": {
     "bostrom": {
@@ -21,11 +39,80 @@
 }
 ```
 
-Read-only mode (no mnemonic needed):
+### Option 2: Claude Code (CLI)
+
+```bash
+claude mcp add bostrom -- npx -y bostrom-mcp
+```
+
+With write tools:
+
+```bash
+claude mcp add bostrom -e BOSTROM_MNEMONIC="your twelve word mnemonic phrase here ..." -- npx -y bostrom-mcp
+```
+
+### Option 3: Cursor
+
+Open **Settings > MCP Servers > Add Server** and configure:
+
+- **Name**: `bostrom`
+- **Type**: `command`
+- **Command**: `npx -y bostrom-mcp`
+
+Or add to `.cursor/mcp.json` in your project:
+
+```jsonc
+{
+  "mcpServers": {
+    "bostrom": {
+      "command": "npx",
+      "args": ["-y", "bostrom-mcp"],
+      "env": {
+        "BOSTROM_MNEMONIC": "your twelve word mnemonic phrase here ..."
+      }
+    }
+  }
+}
+```
+
+### Option 4: Windsurf
+
+Add to `~/.codeium/windsurf/mcp_config.json`:
+
+```jsonc
+{
+  "mcpServers": {
+    "bostrom": {
+      "command": "npx",
+      "args": ["-y", "bostrom-mcp"],
+      "env": {
+        "BOSTROM_MNEMONIC": "your twelve word mnemonic phrase here ..."
+      }
+    }
+  }
+}
+```
+
+### Option 5: Any MCP client
+
+Run the server directly:
 
 ```bash
 npx -y bostrom-mcp
 ```
+
+The server communicates over stdio using the [Model Context Protocol](https://modelcontextprotocol.io). Any MCP-compatible client can connect to it.
+
+### Getting a wallet
+
+Write tools require a Bostrom wallet mnemonic. If you don't have one:
+
+1. Install [cyb.ai](https://cyb.ai) or any Cosmos wallet (Keplr, Cosmostation)
+2. Create a new wallet and save the mnemonic phrase
+3. Fund it with BOOT tokens (needed for gas fees)
+4. Set `BOSTROM_MNEMONIC` in your MCP client config
+
+Without a mnemonic, all 44 read tools work normally — you can explore the knowledge graph, check balances, view proposals, and more.
 
 ## Environment variables
 
