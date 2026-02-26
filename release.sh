@@ -48,8 +48,13 @@ echo "--- Publish to npm ---"
 npm publish
 echo ""
 
-# 7. Publish to MCP Registry
+# 7. Publish to MCP Registry (auto-auth with GitHub PAT from .mcpregistry_github_token)
 echo "--- Publish to MCP Registry ---"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+GH_TOKEN_FILE="${SCRIPT_DIR}/.mcpregistry_github_token"
+if [[ -f "$GH_TOKEN_FILE" ]]; then
+  mcp-publisher login github -token "$(cat "$GH_TOKEN_FILE")"
+fi
 mcp-publisher publish
 echo ""
 
