@@ -2,23 +2,44 @@
 import { fileURLToPath } from "node:url";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+// Read tools
 import { registerGraphTools } from "./tools/graph.js";
 import { registerEconomyTools } from "./tools/economy.js";
 import { registerLithiumTools } from "./tools/lithium.js";
 import { registerGovernanceTools } from "./tools/governance.js";
 import { registerInfraTools } from "./tools/infra.js";
+// Write tools
+import { registerWalletTools } from "./tools/wallet.js";
+import { registerGraphWriteTools } from "./tools/graph-write.js";
+import { registerContractTools } from "./tools/contract.js";
+import { registerLithiumWriteTools } from "./tools/lithium-write.js";
+import { registerTokenFactoryTools } from "./tools/tokenfactory.js";
+import { registerLiquidityTools } from "./tools/liquidity.js";
+import { registerGridTools } from "./tools/grid.js";
+import { registerIbcTools } from "./tools/ibc.js";
 
 export function createServer() {
   const server = new McpServer({
     name: "bostrom",
-    version: "0.1.0",
+    version: "0.2.0",
   });
 
+  // Read tools (44)
   registerGraphTools(server);
   registerEconomyTools(server);
   registerLithiumTools(server);
   registerGovernanceTools(server);
   registerInfraTools(server);
+
+  // Write tools (43)
+  registerWalletTools(server);
+  registerGraphWriteTools(server);
+  registerContractTools(server);
+  registerLithiumWriteTools(server);
+  registerTokenFactoryTools(server);
+  registerLiquidityTools(server);
+  registerGridTools(server);
+  registerIbcTools(server);
 
   return server;
 }

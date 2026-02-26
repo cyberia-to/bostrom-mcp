@@ -1,7 +1,7 @@
 {
   "name": "bostrom-mcp",
-  "version": "0.1.1",
-  "description": "MCP server for read-only access to the Bostrom blockchain ecosystem",
+  "version": "0.2.0",
+  "description": "MCP server for the Bostrom blockchain: read chain state and sign transactions as an autonomous agent",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
@@ -32,11 +32,18 @@
   ],
   "mcpName": "io.github.cyberia-to/bostrom-mcp",
   "dependencies": {
+    "@cosmjs/amino": "^0.32.4",
+    "@cosmjs/cosmwasm-stargate": "^0.32.4",
+    "@cosmjs/crypto": "^0.32.4",
+    "@cosmjs/encoding": "^0.32.4",
+    "@cosmjs/proto-signing": "^0.32.4",
+    "@cosmjs/stargate": "^0.32.4",
+    "@cybercongress/cyber-ts": "^0.1.3",
     "@modelcontextprotocol/sdk": "^1.12.1",
     "zod": "^3.24.4"
   },
   "devDependencies": {
-    "typescript": "^5.7.3",
-    "@types/node": "^22.15.3"
+    "@types/node": "^22.15.3",
+    "typescript": "^5.7.3"
   }
 }

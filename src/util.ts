@@ -96,3 +96,19 @@ export const READ_ONLY_ANNOTATIONS = {
   idempotentHint: true as const,
   openWorldHint: true as const,
 };
+
+/** Write tool annotations — non-idempotent state changes */
+export const WRITE_ANNOTATIONS = {
+  readOnlyHint: false as const,
+  destructiveHint: false as const,
+  idempotentHint: false as const,
+  openWorldHint: true as const,
+};
+
+/** Idempotent write annotations — safe to retry (e.g. set metadata) */
+export const IDEMPOTENT_WRITE_ANNOTATIONS = {
+  readOnlyHint: false as const,
+  destructiveHint: false as const,
+  idempotentHint: true as const,
+  openWorldHint: true as const,
+};
