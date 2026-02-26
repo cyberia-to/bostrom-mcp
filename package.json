@@ -1,0 +1,42 @@
+{
+  "name": "bostrom-mcp",
+  "version": "0.1.0",
+  "description": "MCP server for read-only access to the Bostrom blockchain ecosystem",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "bostrom-mcp": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "prepublishOnly": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cyberia-to/bostrom-mcp"
+  },
+  "license": "MIT",
+  "keywords": [
+    "mcp",
+    "bostrom",
+    "cyber",
+    "blockchain",
+    "cosmwasm",
+    "lithium"
+  ],
+  "mcpName": "io.github.cyberia-to/bostrom-mcp",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "zod": "^3.24.4"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3",
+    "@types/node": "^22.15.3"
+  }
+}
