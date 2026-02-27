@@ -41,7 +41,7 @@ async function callTool(name, args = {}) {
 
 // ─── Test 1: Server startup & tool count ────────────────────
 console.log("\n═══ Test 1: Server Startup & Tool Registration ═══");
-assert(toolNames.length === 80, `Total tools = ${toolNames.length} (expected 80)`);
+assert(toolNames.length === 89, `Total tools = ${toolNames.length} (expected 89)`);
 
 // Verify tool categories
 const readTools = toolNames.filter(n => {
