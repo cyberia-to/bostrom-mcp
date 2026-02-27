@@ -9,18 +9,45 @@ export function registerLithiumWriteTools(server: McpServer) {
     "li_submit_proof",
     {
       description:
-        "Submit a mining proof to earn LI tokens. " +
+        "Submit a v4 seed-based mining proof to earn LI tokens. " +
         "First use li_verify_proof to dry-run, then submit if valid.",
       inputSchema: {
         hash: z.string().describe("Computed hash (hex)"),
         nonce: z.number().describe("Nonce value"),
         timestamp: z.number().describe("Timestamp (unix seconds)"),
+        miner_address: z.string().optional().describe("Miner address (defaults to tx sender)"),
+        referrer: z.string().optional().describe("Referrer address (optional)"),
         contract: z.string().default(LITIUM_MINE).describe("litium-mine contract address"),
       },
       annotations: WRITE_ANNOTATIONS,
     },
-    safe(async ({ hash, nonce, timestamp, contract }) =>
-      ok(await svc.submitProof(hash, nonce, timestamp, contract)),
+    safe(async ({ hash, nonce, timestamp, miner_address, referrer, contract }) =>
+      ok(await svc.submitProof(hash, nonce, timestamp, miner_address, referrer, contract)),
+    ),
+  );
+
+  server.registerTool(
+    "li_submit_lithium_proof",
+    {
+      description:
+        "Submit a lithium v1 proof (block-context based). " +
+        "Requires block_hash and cyberlinks_merkle from li_block_context, " +
+        "and epoch_id from li_epoch_status.",
+      inputSchema: {
+        hash: z.string().describe("Computed hash (hex)"),
+        nonce: z.number().describe("Nonce value"),
+        miner_address: z.string().describe("Miner address (bostrom1...)"),
+        block_hash: z.string().describe("Block hash (hex, 32 bytes)"),
+        cyberlinks_merkle: z.string().describe("Data hash / cyberlinks merkle (hex, 32 bytes)"),
+        epoch_id: z.number().describe("Current lithium epoch ID"),
+        timestamp: z.number().describe("Timestamp (unix seconds)"),
+        referrer: z.string().optional().describe("Referrer address (optional)"),
+        contract: z.string().default(LITIUM_MINE).describe("litium-mine contract address"),
+      },
+      annotations: WRITE_ANNOTATIONS,
+    },
+    safe(async ({ hash, nonce, miner_address, block_hash, cyberlinks_merkle, epoch_id, timestamp, referrer, contract }) =>
+      ok(await svc.submitLithiumProof(hash, nonce, miner_address, block_hash, cyberlinks_merkle, epoch_id, timestamp, referrer, contract)),
     ),
   );
 

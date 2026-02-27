@@ -1,6 +1,6 @@
 {
   "name": "bostrom-mcp",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "MCP server for the Bostrom blockchain: read chain state and sign transactions as an autonomous agent",
   "type": "module",
   "main": "dist/index.js",

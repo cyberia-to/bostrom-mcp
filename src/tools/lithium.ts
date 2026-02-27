@@ -10,6 +10,20 @@ import {
 } from "../services/lithium.js";
 
 export function registerLithiumTools(server: McpServer) {
+  // ── block context (for lithium v1 mining) ─────────────────────
+
+  server.registerTool(
+    "li_block_context",
+    {
+      description:
+        "Get current block hash and data hash (cyberlinks merkle) for lithium v1 mining. " +
+        "Returns height, block_hash (hex), cyberlinks_merkle (hex), time.",
+      inputSchema: {},
+      annotations: READ_ONLY_ANNOTATIONS,
+    },
+    safe(async () => ok(await svc.getBlockContext())),
+  );
+
   // ── litium-core ──────────────────────────────────────────────
 
   server.registerTool(

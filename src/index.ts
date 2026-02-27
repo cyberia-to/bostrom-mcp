@@ -24,14 +24,14 @@ export function createServer() {
     version: "0.2.0",
   });
 
-  // Read tools (44)
+  // Read tools (45)
   registerGraphTools(server);
   registerEconomyTools(server);
   registerLithiumTools(server);
   registerGovernanceTools(server);
   registerInfraTools(server);
 
-  // Write tools (43)
+  // Write tools (44)
   registerWalletTools(server);
   registerGraphWriteTools(server);
   registerContractTools(server);

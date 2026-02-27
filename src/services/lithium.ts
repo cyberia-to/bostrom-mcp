@@ -1,4 +1,4 @@
-import { lcdSmartQuery } from "../clients/lcd.js";
+import { lcdGet, lcdSmartQuery } from "../clients/lcd.js";
 import { graphql } from "../clients/graphql.js";
 
 // Litium modular contract addresses
@@ -6,6 +6,18 @@ export const LITIUM_CORE = "bostrom1wsgx32y0tx5rk6g89ffr8hg2wucnpwp650e9nrdm80je
 export const LITIUM_MINE = "bostrom1vsfzcplds5z9xxl0llczeskxjxuddckksjm2u5ft2xt03qg28ups04mfes";
 export const LITIUM_STAKE = "bostrom1z0s6rxw8eq4wy25kaucy5jydlphlpzpglsle5n7nx2gaqd60rmgqs67tnz";
 export const LITIUM_REFER = "bostrom1m8a0jzyyu794cmd5clkt37kr0kkqvxyra23gnqcg5929n63ryhpss3986d";
+
+// --- block context for lithium v1 mining ---
+
+export async function getBlockContext() {
+  const block = await lcdGet<any>("/cosmos/base/tendermint/v1beta1/blocks/latest");
+  return {
+    height: Number(block.block.header.height),
+    block_hash: Buffer.from(block.block_id.hash, "base64").toString("hex"),
+    cyberlinks_merkle: Buffer.from(block.block.header.data_hash || "", "base64").toString("hex"),
+    time: block.block.header.time,
+  };
+}
 
 // --- litium-core queries ---
 

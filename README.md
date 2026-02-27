@@ -2,7 +2,7 @@
 
 [MCP](https://modelcontextprotocol.io) server for the [Bostrom](https://cyb.ai) blockchain — knowledge graph, economy, lithium mining, governance, infrastructure, and **autonomous agent capabilities**.
 
-87 tools: 44 read + 43 write. Read tools work with zero configuration. Write tools require a wallet mnemonic.
+89 tools: 45 read + 44 write. Read tools work with zero configuration. Write tools require a wallet mnemonic.
 
 ## Installation
 
@@ -208,10 +208,11 @@ Without a mnemonic, all 44 read tools work normally — you can explore the know
 | `wasm_update_admin` | Update contract admin |
 | `wasm_clear_admin` | Clear contract admin (irreversible) |
 
-### Lithium Mining — Read (25)
+### Lithium Mining — Read (26)
 
 | Tool | Description |
 |------|-------------|
+| `li_block_context` | Current block hash and data hash for lithium v1 mining |
 | `li_core_config` | Token denom, admin, paused status |
 | `li_burn_stats` | Total LI burned |
 | `li_total_minted` | Total LI minted and supply cap |
@@ -238,11 +239,12 @@ Without a mnemonic, all 44 read tools work normally — you can explore the know
 | `li_community_pool` | Unclaimed community pool balance |
 | `li_miner_tx_history` | Miner's recent contract TX history |
 
-### Lithium Mining — Write (5)
+### Lithium Mining — Write (6)
 
 | Tool | Description |
 |------|-------------|
-| `li_submit_proof` | Submit a mining proof |
+| `li_submit_proof` | Submit a v4 seed-based mining proof |
+| `li_submit_lithium_proof` | Submit a lithium v1 proof with block context |
 | `li_stake` | Stake LI tokens |
 | `li_unstake` | Unstake LI tokens |
 | `li_claim_rewards` | Claim LI staking rewards |
@@ -285,7 +287,8 @@ Without a mnemonic, all 44 read tools work normally — you can explore the know
 
 With write tools enabled, an LLM agent can perform autonomous workflows:
 
-- **Lithium mining**: `li_mine_state` → compute proof → `li_verify_proof` → `li_submit_proof` → `li_stake`
+- **Lithium mining (v4)**: `li_mine_state` → compute proof → `li_verify_proof` → `li_submit_proof` → `li_stake`
+- **Lithium mining (v1)**: `li_block_context` + `li_epoch_status` → compute proof → `li_submit_lithium_proof` → `li_stake`
 - **Token launch + market**: `token_create` → `token_set_metadata` → `token_mint` → `liquidity_create_pool` → `graph_create_knowledge`
 - **Knowledge graph**: `graph_pin_content` → `graph_create_cyberlink` → `graph_search` → `graph_rank`
 - **Governance**: `gov_proposals` → `gov_proposal_detail` → `wallet_vote`

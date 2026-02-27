@@ -7,15 +7,49 @@ import {
 } from "./lithium.js";
 import { lcdSmartQuery } from "../clients/lcd.js";
 
-/** Submit a mining proof to the litium-mine contract */
+/** Submit a v4 seed-based mining proof to the litium-mine contract */
 export async function submitProof(
   hash: string,
   nonce: number,
   timestamp: number,
+  miner_address?: string,
+  referrer?: string,
   contract: string = LITIUM_MINE,
 ) {
   return executeContract(contract, {
-    submit_proof: { hash, nonce, timestamp },
+    submit_proof: {
+      hash,
+      nonce,
+      timestamp,
+      ...(miner_address && { miner_address }),
+      ...(referrer && { referrer }),
+    },
+  });
+}
+
+/** Submit a lithium v1 proof with block context */
+export async function submitLithiumProof(
+  hash: string,
+  nonce: number,
+  miner_address: string,
+  block_hash: string,
+  cyberlinks_merkle: string,
+  epoch_id: number,
+  timestamp: number,
+  referrer?: string,
+  contract: string = LITIUM_MINE,
+) {
+  return executeContract(contract, {
+    submit_lithium_proof: {
+      hash,
+      nonce,
+      miner_address,
+      block_hash,
+      cyberlinks_merkle,
+      epoch_id,
+      timestamp,
+      ...(referrer && { referrer }),
+    },
   });
 }
 
