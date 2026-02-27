@@ -3,9 +3,8 @@ import {
   LITIUM_MINE,
   LITIUM_STAKE,
   LITIUM_REFER,
-  LITIUM_CORE,
+  LI_DENOM,
 } from "./lithium.js";
-import { lcdSmartQuery } from "../clients/lcd.js";
 
 /** Submit a v4 seed-based mining proof to the litium-mine contract */
 export async function submitProof(
@@ -58,16 +57,11 @@ export async function stakeLi(
   amount: string,
   contract: string = LITIUM_STAKE,
 ) {
-  // Staking sends LI tokens as funds to the stake contract
-  // First get the token denom from core config
-  const config = await lcdSmartQuery<{ token_denom: string }>(
-    LITIUM_CORE,
-    { config: {} },
-  );
+  // LI denom is deterministic: factory/{LITIUM_CORE}/li
   return executeContract(
     contract,
     { stake: {} },
-    [{ denom: config.token_denom, amount }],
+    [{ denom: LI_DENOM, amount }],
   );
 }
 

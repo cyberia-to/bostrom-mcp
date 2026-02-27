@@ -6,6 +6,8 @@ export const LITIUM_CORE = "bostrom1wsgx32y0tx5rk6g89ffr8hg2wucnpwp650e9nrdm80je
 export const LITIUM_MINE = "bostrom1vsfzcplds5z9xxl0llczeskxjxuddckksjm2u5ft2xt03qg28ups04mfes";
 export const LITIUM_STAKE = "bostrom1z0s6rxw8eq4wy25kaucy5jydlphlpzpglsle5n7nx2gaqd60rmgqs67tnz";
 export const LITIUM_REFER = "bostrom1m8a0jzyyu794cmd5clkt37kr0kkqvxyra23gnqcg5929n63ryhpss3986d";
+// LI token denom: token factory convention factory/{issuer}/{subdenom}
+export const LI_DENOM = `factory/${LITIUM_CORE}/li`;
 
 // --- block context for lithium v1 mining ---
 
