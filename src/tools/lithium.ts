@@ -68,7 +68,7 @@ export function registerLithiumTools(server: McpServer) {
     "li_mine_state",
     {
       description:
-        "Get full litium-mine state: config, seed, difficulty, stats, epoch_status, proof_stats, emission breakdown",
+        "Get full litium-mine state: config, difficulty, stats, epoch_status, proof_stats, emission breakdown",
       inputSchema: {
         contract: z.string().default(LITIUM_MINE).describe("litium-mine contract address"),
       },
@@ -81,25 +81,13 @@ export function registerLithiumTools(server: McpServer) {
     "li_mine_config",
     {
       description:
-        "Get litium-mine config: difficulty, base_reward, alpha_micros, max_proof_age, period_duration, lithium_epoch_duration_blocks, target_proofs_per_window, estimated_gas_cost_uboot, core/stake/refer contracts",
+        "Get litium-mine config: difficulty, base_reward, alpha_micros, max_proof_age, lithium_epoch_duration_blocks, target_proofs_per_epoch, estimated_gas_cost_uboot, core/stake/refer/token contracts",
       inputSchema: {
         contract: z.string().default(LITIUM_MINE).describe("litium-mine contract address"),
       },
       annotations: READ_ONLY_ANNOTATIONS,
     },
     safe(async ({ contract }) => ok(await svc.getMineConfig(contract))),
-  );
-
-  server.registerTool(
-    "li_seed",
-    {
-      description: "Get current mining seed and seed_interval",
-      inputSchema: {
-        contract: z.string().default(LITIUM_MINE).describe("litium-mine contract address"),
-      },
-      annotations: READ_ONLY_ANNOTATIONS,
-    },
-    safe(async ({ contract }) => ok(await svc.getSeed(contract))),
   );
 
   server.registerTool(
@@ -210,24 +198,6 @@ export function registerLithiumTools(server: McpServer) {
     },
     safe(async ({ address, epoch_id, contract }) =>
       ok(await svc.getLithiumMinerEpochStats(contract, address, epoch_id)),
-    ),
-  );
-
-  server.registerTool(
-    "li_verify_proof",
-    {
-      description: "Dry-run verify a proof without submitting: valid, difficulty_bits, estimated_reward",
-      inputSchema: {
-        hash: z.string().describe("Computed hash (hex)"),
-        nonce: z.number().describe("Nonce"),
-        timestamp: z.number().describe("Timestamp (unix seconds)"),
-        miner: z.string().describe("Miner address (bostrom1...)"),
-        contract: z.string().default(LITIUM_MINE).describe("litium-mine contract address"),
-      },
-      annotations: READ_ONLY_ANNOTATIONS,
-    },
-    safe(async ({ hash, nonce, timestamp, miner, contract }) =>
-      ok(await svc.verifyProof(contract, hash, nonce, timestamp, miner)),
     ),
   );
 

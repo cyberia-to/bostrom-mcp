@@ -35,18 +35,10 @@ export async function getTotalMinted(contract: string) {
   return lcdSmartQuery(contract, { total_minted: {} });
 }
 
-export async function isAuthorizedCaller(contract: string, address: string) {
-  return lcdSmartQuery(contract, { is_authorized_caller: { address } });
-}
-
 // --- litium-mine queries ---
 
 export async function getMineConfig(contract: string) {
   return lcdSmartQuery(contract, { config: {} });
-}
-
-export async function getSeed(contract: string) {
-  return lcdSmartQuery(contract, { seed: {} });
 }
 
 export async function getDifficulty(contract: string) {
@@ -87,18 +79,6 @@ export async function getMinerStats(contract: string, address: string) {
   return lcdSmartQuery(contract, { miner_stats: { address } });
 }
 
-export async function verifyProof(
-  contract: string,
-  hash: string,
-  nonce: number,
-  timestamp: number,
-  miner: string,
-) {
-  return lcdSmartQuery(contract, {
-    verify_proof: { hash, nonce, timestamp, miner },
-  });
-}
-
 export async function calculateReward(contract: string, difficultyBits: number) {
   return lcdSmartQuery(contract, {
     calculate_reward: { difficulty_bits: difficultyBits },
@@ -107,17 +87,16 @@ export async function calculateReward(contract: string, difficultyBits: number) 
 
 /** Composite: full mine contract state */
 export async function getMineState(contract: string) {
-  const [config, seed, difficulty, stats, epochStatus, proofStats, emission] =
+  const [config, difficulty, stats, epochStatus, proofStats, emission] =
     await Promise.all([
       lcdSmartQuery(contract, { config: {} }),
-      lcdSmartQuery(contract, { seed: {} }),
       lcdSmartQuery(contract, { difficulty: {} }),
       lcdSmartQuery(contract, { stats: {} }),
       lcdSmartQuery(contract, { epoch_status: {} }),
       lcdSmartQuery(contract, { proof_stats: {} }),
       lcdSmartQuery(contract, { lithium_emission_info: {} }),
     ]);
-  return { config, seed, difficulty, stats, epoch_status: epochStatus, proof_stats: proofStats, emission };
+  return { config, difficulty, stats, epoch_status: epochStatus, proof_stats: proofStats, emission };
 }
 
 // --- litium-stake queries ---
@@ -138,6 +117,10 @@ export async function getStakingStats(contract: string) {
   return lcdSmartQuery(contract, { staking_stats: {} });
 }
 
+export async function getStakeTotalPendingRewards(contract: string) {
+  return lcdSmartQuery(contract, { total_pending_rewards: {} });
+}
+
 // --- litium-refer queries ---
 
 export async function getReferConfig(contract: string) {
@@ -154,6 +137,10 @@ export async function getReferralInfo(contract: string, address: string) {
 
 export async function getCommunityPoolBalance(contract: string) {
   return lcdSmartQuery(contract, { community_pool_balance: {} });
+}
+
+export async function getReferTotalPendingRewards(contract: string) {
+  return lcdSmartQuery(contract, { total_pending_rewards: {} });
 }
 
 // --- TX history (via graphql, works for any contract) ---

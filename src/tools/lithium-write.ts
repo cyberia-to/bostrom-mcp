@@ -6,48 +6,26 @@ import { LITIUM_MINE, LITIUM_STAKE, LITIUM_REFER } from "../services/lithium.js"
 
 export function registerLithiumWriteTools(server: McpServer) {
   server.registerTool(
-    "li_submit_proof",
-    {
-      description:
-        "Submit a v4 seed-based mining proof to earn LI tokens. " +
-        "First use li_verify_proof to dry-run, then submit if valid.",
-      inputSchema: {
-        hash: z.string().describe("Computed hash (hex)"),
-        nonce: z.number().describe("Nonce value"),
-        timestamp: z.number().describe("Timestamp (unix seconds)"),
-        miner_address: z.string().optional().describe("Miner address (defaults to tx sender)"),
-        referrer: z.string().optional().describe("Referrer address (optional)"),
-        contract: z.string().default(LITIUM_MINE).describe("litium-mine contract address"),
-      },
-      annotations: WRITE_ANNOTATIONS,
-    },
-    safe(async ({ hash, nonce, timestamp, miner_address, referrer, contract }) =>
-      ok(await svc.submitProof(hash, nonce, timestamp, miner_address, referrer, contract)),
-    ),
-  );
-
-  server.registerTool(
     "li_submit_lithium_proof",
     {
       description:
-        "Submit a lithium v1 proof (block-context based). " +
-        "Requires block_hash and cyberlinks_merkle from li_block_context, " +
-        "and epoch_id from li_epoch_status.",
+        "Submit a lithium mining proof. " +
+        "Requires challenge (32-byte hex) and epoch_id from li_epoch_status. " +
+        "First referrer submission also binds the referrer permanently.",
       inputSchema: {
         hash: z.string().describe("Computed hash (hex)"),
         nonce: z.number().describe("Nonce value"),
         miner_address: z.string().describe("Miner address (bostrom1...)"),
-        block_hash: z.string().describe("Block hash (hex, 32 bytes)"),
-        cyberlinks_merkle: z.string().describe("Data hash / cyberlinks merkle (hex, 32 bytes)"),
+        challenge: z.string().describe("Challenge (hex, 32 bytes)"),
         epoch_id: z.number().describe("Current lithium epoch ID"),
         timestamp: z.number().describe("Timestamp (unix seconds)"),
-        referrer: z.string().optional().describe("Referrer address (optional)"),
+        referrer: z.string().optional().describe("Referrer address (optional, bound permanently on first proof)"),
         contract: z.string().default(LITIUM_MINE).describe("litium-mine contract address"),
       },
       annotations: WRITE_ANNOTATIONS,
     },
-    safe(async ({ hash, nonce, miner_address, block_hash, cyberlinks_merkle, epoch_id, timestamp, referrer, contract }) =>
-      ok(await svc.submitLithiumProof(hash, nonce, miner_address, block_hash, cyberlinks_merkle, epoch_id, timestamp, referrer, contract)),
+    safe(async ({ hash, nonce, miner_address, challenge, epoch_id, timestamp, referrer, contract }) =>
+      ok(await svc.submitLithiumProof(hash, nonce, miner_address, challenge, epoch_id, timestamp, referrer, contract)),
     ),
   );
 
@@ -56,7 +34,7 @@ export function registerLithiumWriteTools(server: McpServer) {
     {
       description:
         "Stake LI tokens to earn staking rewards. " +
-        "Sends LI tokens to the stake contract.",
+        "Sends CW-20 LI to the stake contract via litium-core Send.",
       inputSchema: {
         amount: z.string().describe("Amount of LI to stake (base units)"),
         contract: z.string().default(LITIUM_STAKE).describe("litium-stake contract address"),
@@ -100,19 +78,34 @@ export function registerLithiumWriteTools(server: McpServer) {
   );
 
   server.registerTool(
-    "li_set_referrer",
+    "li_claim_unbonding",
     {
       description:
-        "Set your referrer in the litium-refer contract. " +
-        "Referrer earns a share of your mining rewards. Can only be set once.",
+        "Claim matured unbonding LI tokens from the stake contract. " +
+        "Only succeeds after unbonding_period_seconds has elapsed since unstaking.",
       inputSchema: {
-        referrer: z.string().describe("Referrer address (bostrom1...)"),
+        contract: z.string().default(LITIUM_STAKE).describe("litium-stake contract address"),
+      },
+      annotations: WRITE_ANNOTATIONS,
+    },
+    safe(async ({ contract }) =>
+      ok(await svc.claimUnbonding(contract)),
+    ),
+  );
+
+  server.registerTool(
+    "li_claim_referral_rewards",
+    {
+      description:
+        "Claim accumulated referral rewards from the litium-refer contract. " +
+        "Called by the referrer to collect earned referral share.",
+      inputSchema: {
         contract: z.string().default(LITIUM_REFER).describe("litium-refer contract address"),
       },
       annotations: WRITE_ANNOTATIONS,
     },
-    safe(async ({ referrer, contract }) =>
-      ok(await svc.setReferrer(referrer, contract)),
+    safe(async ({ contract }) =>
+      ok(await svc.claimReferralRewards(contract)),
     ),
   );
 }
