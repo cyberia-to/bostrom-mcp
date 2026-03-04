@@ -21,7 +21,7 @@ import { registerIbcTools } from "./tools/ibc.js";
 export function createServer() {
   const server = new McpServer({
     name: "bostrom",
-    version: "0.2.0",
+    version: "0.4.0",
   });
 
   // Read tools (45)
