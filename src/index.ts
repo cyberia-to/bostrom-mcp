@@ -46,8 +46,13 @@ export function createServer() {
 
 export const createSandboxServer = createServer;
 
-const isDirectRun =
-  import.meta.url && process.argv[1] === fileURLToPath(import.meta.url);
+const isDirectRun = (() => {
+  try {
+    return import.meta.url && process.argv[1] === fileURLToPath(import.meta.url);
+  } catch {
+    return false;
+  }
+})();
 
 if (isDirectRun) {
   const server = createServer();

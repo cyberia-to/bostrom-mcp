@@ -10,14 +10,21 @@ import { SigningCosmWasmClient } from "@cosmjs/cosmwasm-stargate";
 import { Registry } from "@cosmjs/proto-signing";
 import type { EncodeObject, GeneratedType } from "@cosmjs/proto-signing";
 
-// CJS sub-path imports — cyber-ts lacks ESM "exports" field
-const require = createRequire(import.meta.url);
-const { cyberProtoRegistry } = require("@cybercongress/cyber-ts/cyber/client") as {
-  cyberProtoRegistry: ReadonlyArray<[string, GeneratedType]>;
-};
-const { osmosisProtoRegistry } = require("@cybercongress/cyber-ts/osmosis/client") as {
-  osmosisProtoRegistry: ReadonlyArray<[string, GeneratedType]>;
-};
+// CJS sub-path imports — cyber-ts lacks ESM "exports" field.
+// Lazy-loaded to avoid crashing Smithery's CJS scan bundler.
+let _cyberProtoRegistry: ReadonlyArray<[string, GeneratedType]> | null = null;
+let _osmosisProtoRegistry: ReadonlyArray<[string, GeneratedType]> | null = null;
+
+function loadProtoRegistries() {
+  if (_cyberProtoRegistry) return;
+  const req = createRequire(import.meta.url);
+  _cyberProtoRegistry = (req("@cybercongress/cyber-ts/cyber/client") as {
+    cyberProtoRegistry: ReadonlyArray<[string, GeneratedType]>;
+  }).cyberProtoRegistry;
+  _osmosisProtoRegistry = (req("@cybercongress/cyber-ts/osmosis/client") as {
+    osmosisProtoRegistry: ReadonlyArray<[string, GeneratedType]>;
+  }).osmosisProtoRegistry;
+}
 
 const RPC_ENDPOINT = process.env.BOSTROM_RPC ?? "https://rpc.bostrom.cybernode.ai";
 const ADDRESS_PREFIX = "bostrom";
@@ -58,10 +65,11 @@ export async function getWalletAddress(): Promise<string> {
 
 /** Build a merged registry: default stargate + cyber + osmosis types */
 function buildRegistry(): Registry {
+  loadProtoRegistries();
   return new Registry([
     ...defaultRegistryTypes,
-    ...cyberProtoRegistry,
-    ...osmosisProtoRegistry,
+    ..._cyberProtoRegistry!,
+    ..._osmosisProtoRegistry!,
   ]);
 }
 
