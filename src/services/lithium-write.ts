@@ -7,23 +7,23 @@ import {
 } from "./lithium.js";
 
 /** Submit a lithium proof */
-export async function submitLithiumProof(
+export async function submitProof(
   hash: string,
   nonce: number,
   miner_address: string,
   challenge: string,
-  epoch_id: number,
+  difficulty: number,
   timestamp: number,
   referrer?: string,
   contract: string = LITIUM_MINE,
 ) {
   return executeContract(contract, {
-    submit_lithium_proof: {
+    submit_proof: {
       hash,
       nonce,
       miner_address,
       challenge,
-      epoch_id,
+      difficulty,
       timestamp,
       ...(referrer && { referrer }),
     },

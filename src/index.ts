@@ -21,10 +21,10 @@ import { registerIbcTools } from "./tools/ibc.js";
 export function createServer() {
   const server = new McpServer({
     name: "bostrom",
-    version: "0.4.0",
+    version: "0.5.0",
   });
 
-  // Read tools (45)
+  // Read tools (42)
   registerGraphTools(server);
   registerEconomyTools(server);
   registerLithiumTools(server);

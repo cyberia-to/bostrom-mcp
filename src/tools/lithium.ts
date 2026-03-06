@@ -68,7 +68,7 @@ export function registerLithiumTools(server: McpServer) {
     "li_mine_state",
     {
       description:
-        "Get full litium-mine state: config, difficulty, stats, epoch_status, proof_stats, emission breakdown",
+        "Get full litium-mine state: config, window_status, stats, emission breakdown",
       inputSchema: {
         contract: z.string().default(LITIUM_MINE).describe("litium-mine contract address"),
       },
@@ -81,7 +81,7 @@ export function registerLithiumTools(server: McpServer) {
     "li_mine_config",
     {
       description:
-        "Get litium-mine config: difficulty, base_reward, alpha_micros, max_proof_age, lithium_epoch_duration_blocks, target_proofs_per_epoch, estimated_gas_cost_uboot, core/stake/refer/token contracts",
+        "Get litium-mine config: max_proof_age, estimated_gas_cost_uboot, window_size, pid_interval, min_difficulty, alpha, beta, fee_bucket_duration, fee_num_buckets, warmup_base_rate, core/stake/refer/token contracts",
       inputSchema: {
         contract: z.string().default(LITIUM_MINE).describe("litium-mine contract address"),
       },
@@ -91,54 +91,29 @@ export function registerLithiumTools(server: McpServer) {
   );
 
   server.registerTool(
-    "li_difficulty",
+    "li_window_status",
     {
       description:
-        "Get difficulty info: current, min_profitable, window_proof_count, window_total_work",
+        "Get sliding window status: proof_count, window_d_rate, window_entries, base_rate, alpha, beta",
       inputSchema: {
         contract: z.string().default(LITIUM_MINE).describe("litium-mine contract address"),
       },
       annotations: READ_ONLY_ANNOTATIONS,
     },
-    safe(async ({ contract }) => ok(await svc.getDifficulty(contract))),
-  );
-
-  server.registerTool(
-    "li_epoch_status",
-    {
-      description:
-        "Get current Lithium epoch: epoch_id, start/end block heights, proof_count, target_solutions, difficulty",
-      inputSchema: {
-        contract: z.string().default(LITIUM_MINE).describe("litium-mine contract address"),
-      },
-      annotations: READ_ONLY_ANNOTATIONS,
-    },
-    safe(async ({ contract }) => ok(await svc.getEpochStatus(contract))),
-  );
-
-  server.registerTool(
-    "li_proof_stats",
-    {
-      description: "Get current epoch proof counters: epoch_id, proof_count, total_work",
-      inputSchema: {
-        contract: z.string().default(LITIUM_MINE).describe("litium-mine contract address"),
-      },
-      annotations: READ_ONLY_ANNOTATIONS,
-    },
-    safe(async ({ contract }) => ok(await svc.getProofStats(contract))),
+    safe(async ({ contract }) => ok(await svc.getWindowStatus(contract))),
   );
 
   server.registerTool(
     "li_emission",
     {
       description:
-        "Get Lithium emission breakdown: epoch_id, mining_emission, staking_emission, referral_emission, total_emission",
+        "Get Lithium emission breakdown: alpha, beta, emission_rate, gross_rate, mining_rate, staking_rate, windowed_fees",
       inputSchema: {
         contract: z.string().default(LITIUM_MINE).describe("litium-mine contract address"),
       },
       annotations: READ_ONLY_ANNOTATIONS,
     },
-    safe(async ({ contract }) => ok(await svc.getLithiumEmissionInfo(contract))),
+    safe(async ({ contract }) => ok(await svc.getEmissionInfo(contract))),
   );
 
   server.registerTool(
@@ -173,7 +148,7 @@ export function registerLithiumTools(server: McpServer) {
     "li_miner_stats",
     {
       description:
-        "Get per-miner stats: proofs_submitted, total_rewards, last_proof_height",
+        "Get per-miner stats: proofs_submitted, total_rewards, last_proof_time",
       inputSchema: {
         address: z.string().describe("Miner address (bostrom1...)"),
         contract: z.string().default(LITIUM_MINE).describe("litium-mine contract address"),
@@ -182,22 +157,6 @@ export function registerLithiumTools(server: McpServer) {
     },
     safe(async ({ address, contract }) =>
       ok(await svc.getMinerStats(contract, address)),
-    ),
-  );
-
-  server.registerTool(
-    "li_miner_epoch_stats",
-    {
-      description: "Get a miner's proof count for a specific Lithium epoch",
-      inputSchema: {
-        address: z.string().describe("Miner address (bostrom1...)"),
-        epoch_id: z.number().min(0).describe("Lithium epoch ID"),
-        contract: z.string().default(LITIUM_MINE).describe("litium-mine contract address"),
-      },
-      annotations: READ_ONLY_ANNOTATIONS,
-    },
-    safe(async ({ address, epoch_id, contract }) =>
-      ok(await svc.getLithiumMinerEpochStats(contract, address, epoch_id)),
     ),
   );
 
@@ -224,7 +183,7 @@ export function registerLithiumTools(server: McpServer) {
     "li_stake_config",
     {
       description:
-        "Get litium-stake config: core_contract, mine_contract, token_denom, unbonding_period_seconds, admin, paused",
+        "Get litium-stake config: core_contract, mine_contract, token_contract, unbonding_period_seconds, admin, paused",
       inputSchema: {
         contract: z.string().default(LITIUM_STAKE).describe("litium-stake contract address"),
       },

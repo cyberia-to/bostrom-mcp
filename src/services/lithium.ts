@@ -41,34 +41,12 @@ export async function getMineConfig(contract: string) {
   return lcdSmartQuery(contract, { config: {} });
 }
 
-export async function getDifficulty(contract: string) {
-  return lcdSmartQuery(contract, { difficulty: {} });
+export async function getWindowStatus(contract: string) {
+  return lcdSmartQuery(contract, { window_status: {} });
 }
 
-export async function getEpochStatus(contract: string) {
-  return lcdSmartQuery(contract, { epoch_status: {} });
-}
-
-export async function getTarget(contract: string) {
-  return lcdSmartQuery(contract, { target: {} });
-}
-
-export async function getProofStats(contract: string) {
-  return lcdSmartQuery(contract, { proof_stats: {} });
-}
-
-export async function getLithiumEmissionInfo(contract: string) {
-  return lcdSmartQuery(contract, { lithium_emission_info: {} });
-}
-
-export async function getLithiumMinerEpochStats(
-  contract: string,
-  address: string,
-  epochId: number,
-) {
-  return lcdSmartQuery(contract, {
-    lithium_miner_epoch_stats: { address, epoch_id: epochId },
-  });
+export async function getEmissionInfo(contract: string) {
+  return lcdSmartQuery(contract, { emission_info: {} });
 }
 
 export async function getMineStats(contract: string) {
@@ -87,16 +65,14 @@ export async function calculateReward(contract: string, difficultyBits: number) 
 
 /** Composite: full mine contract state */
 export async function getMineState(contract: string) {
-  const [config, difficulty, stats, epochStatus, proofStats, emission] =
+  const [config, windowStatus, stats, emission] =
     await Promise.all([
       lcdSmartQuery(contract, { config: {} }),
-      lcdSmartQuery(contract, { difficulty: {} }),
+      lcdSmartQuery(contract, { window_status: {} }),
       lcdSmartQuery(contract, { stats: {} }),
-      lcdSmartQuery(contract, { epoch_status: {} }),
-      lcdSmartQuery(contract, { proof_stats: {} }),
-      lcdSmartQuery(contract, { lithium_emission_info: {} }),
+      lcdSmartQuery(contract, { emission_info: {} }),
     ]);
-  return { config, difficulty, stats, epoch_status: epochStatus, proof_stats: proofStats, emission };
+  return { config, window_status: windowStatus, stats, emission };
 }
 
 // --- litium-stake queries ---

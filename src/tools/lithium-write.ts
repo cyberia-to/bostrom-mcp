@@ -6,26 +6,26 @@ import { LITIUM_MINE, LITIUM_STAKE, LITIUM_REFER } from "../services/lithium.js"
 
 export function registerLithiumWriteTools(server: McpServer) {
   server.registerTool(
-    "li_submit_lithium_proof",
+    "li_submit_proof",
     {
       description:
-        "Submit a lithium mining proof. " +
-        "Requires challenge (32-byte hex) and epoch_id from li_epoch_status. " +
+        "Submit a lithium mining proof with client-chosen difficulty. " +
+        "Requires challenge (32-byte hex) and difficulty (leading zero bits). " +
         "First referrer submission also binds the referrer permanently.",
       inputSchema: {
         hash: z.string().describe("Computed hash (hex)"),
         nonce: z.number().describe("Nonce value"),
         miner_address: z.string().describe("Miner address (bostrom1...)"),
         challenge: z.string().describe("Challenge (hex, 32 bytes)"),
-        epoch_id: z.number().describe("Current lithium epoch ID"),
+        difficulty: z.number().min(1).describe("Difficulty in bits (leading zero bits)"),
         timestamp: z.number().describe("Timestamp (unix seconds)"),
         referrer: z.string().optional().describe("Referrer address (optional, bound permanently on first proof)"),
         contract: z.string().default(LITIUM_MINE).describe("litium-mine contract address"),
       },
       annotations: WRITE_ANNOTATIONS,
     },
-    safe(async ({ hash, nonce, miner_address, challenge, epoch_id, timestamp, referrer, contract }) =>
-      ok(await svc.submitLithiumProof(hash, nonce, miner_address, challenge, epoch_id, timestamp, referrer, contract)),
+    safe(async ({ hash, nonce, miner_address, challenge, difficulty, timestamp, referrer, contract }) =>
+      ok(await svc.submitProof(hash, nonce, miner_address, challenge, difficulty, timestamp, referrer, contract)),
     ),
   );
 
