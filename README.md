@@ -195,7 +195,7 @@ Without a mnemonic, all 45 read tools work normally — you can explore the know
 
 | Tool | Description |
 |------|-------------|
-| `li_mine_proof` | Mine a proof using CPU (UniversalHash PoW), optionally auto-submit on-chain |
+| `li_mine_proof` | Mine a proof using CPU (UniversalHash PoW), optionally auto-submit on-chain. Generates random 32-byte challenge locally, uses `lithium-cli` contract types for correct `submit_proof` message format. |
 
 ### Token Factory (6)
 
@@ -259,6 +259,11 @@ With write tools enabled, an LLM agent can perform autonomous workflows:
 - **Governance**: `gov_proposals` → `gov_proposal_detail` → `wallet_vote`
 - **DeFi**: `swap_estimate` → `swap_tokens` → `liquidity_deposit`
 - **Contract deployment**: `wasm_upload` → `wasm_instantiate` → `contract_execute`
+
+## Dependencies
+
+- [uhash-prover](https://crates.io/crates/uhash-prover) — UniversalHash CPU solver (feature-gated behind `mining`)
+- [lithium-cli](https://crates.io/crates/lithium-cli) — Contract types and mainnet deployment addresses (lib-only, no heavy CLI deps)
 
 ## Development
 

@@ -15,12 +15,11 @@ const GRAPHQL_DEFAULT: &str = "https://index.bostrom.cybernode.ai/v1/graphql";
 const IPFS_GATEWAY_DEFAULT: &str = "https://gateway.ipfs.cybernode.ai";
 const IPFS_API_DEFAULT: &str = "https://io.cybernode.ai";
 
-// Lithium contract constants
-const LITIUM_CORE: &str = "bostrom1wsgx32y0tx5rk6g89ffr8hg2wucnpwp650e9nrdm80jeyku5u4zq5ashgz";
-const LITIUM_MINE: &str = "bostrom1vsfzcplds5z9xxl0llczeskxjxuddckksjm2u5ft2xt03qg28ups04mfes";
-const LITIUM_STAKE: &str = "bostrom1z0s6rxw8eq4wy25kaucy5jydlphlpzpglsle5n7nx2gaqd60rmgqs67tnz";
-const LITIUM_REFER: &str = "bostrom1m8a0jzyyu794cmd5clkt37kr0kkqvxyra23gnqcg5929n63ryhpss3986d";
-
+// Lithium contract addresses — single source of truth from lithium-cli deployments TOML
+fn litium_core() -> &'static str { &lithium_cli::deployments::mainnet().litium_core }
+fn litium_mine() -> &'static str { &lithium_cli::deployments::mainnet().litium_mine }
+fn litium_stake() -> &'static str { &lithium_cli::deployments::mainnet().litium_stake }
+fn litium_refer() -> &'static str { &lithium_cli::deployments::mainnet().litium_refer }
 
 // Liquidity pool discovery helpers
 
@@ -654,7 +653,7 @@ async fn li_core_config(
     &self,
     params: Parameters<crate::tools::ContractParam>,
 ) -> Result<CallToolResult, rmcp::ErrorData> {
-    let contract = params.0.contract.as_deref().unwrap_or(LITIUM_CORE);
+    let contract = params.0.contract.as_deref().unwrap_or(litium_core());
     match self.lcd.smart_query(contract, &serde_json::json!({"config": {}})).await {
         Ok(data) => Ok(crate::util::ok(&data)),
         Err(e) => Ok(crate::util::err(&e.to_string())),
@@ -666,7 +665,7 @@ async fn li_burn_stats(
     &self,
     params: Parameters<crate::tools::ContractParam>,
 ) -> Result<CallToolResult, rmcp::ErrorData> {
-    let contract = params.0.contract.as_deref().unwrap_or(LITIUM_CORE);
+    let contract = params.0.contract.as_deref().unwrap_or(litium_core());
     match self.lcd.smart_query(contract, &serde_json::json!({"burn_stats": {}})).await {
         Ok(data) => Ok(crate::util::ok(&data)),
         Err(e) => Ok(crate::util::err(&e.to_string())),
@@ -678,7 +677,7 @@ async fn li_total_minted(
     &self,
     params: Parameters<crate::tools::ContractParam>,
 ) -> Result<CallToolResult, rmcp::ErrorData> {
-    let contract = params.0.contract.as_deref().unwrap_or(LITIUM_CORE);
+    let contract = params.0.contract.as_deref().unwrap_or(litium_core());
     match self.lcd.smart_query(contract, &serde_json::json!({"total_minted": {}})).await {
         Ok(data) => Ok(crate::util::ok(&data)),
         Err(e) => Ok(crate::util::err(&e.to_string())),
@@ -690,7 +689,7 @@ async fn li_mine_state(
     &self,
     params: Parameters<crate::tools::ContractParam>,
 ) -> Result<CallToolResult, rmcp::ErrorData> {
-    let contract = params.0.contract.as_deref().unwrap_or(LITIUM_MINE);
+    let contract = params.0.contract.as_deref().unwrap_or(litium_mine());
     let q1 = serde_json::json!({"config": {}});
     let q2 = serde_json::json!({"window_status": {}});
     let q3 = serde_json::json!({"stats": {}});
@@ -715,7 +714,7 @@ async fn li_mine_config(
     &self,
     params: Parameters<crate::tools::ContractParam>,
 ) -> Result<CallToolResult, rmcp::ErrorData> {
-    let contract = params.0.contract.as_deref().unwrap_or(LITIUM_MINE);
+    let contract = params.0.contract.as_deref().unwrap_or(litium_mine());
     match self.lcd.smart_query(contract, &serde_json::json!({"config": {}})).await {
         Ok(data) => Ok(crate::util::ok(&data)),
         Err(e) => Ok(crate::util::err(&e.to_string())),
@@ -727,7 +726,7 @@ async fn li_window_status(
     &self,
     params: Parameters<crate::tools::ContractParam>,
 ) -> Result<CallToolResult, rmcp::ErrorData> {
-    let contract = params.0.contract.as_deref().unwrap_or(LITIUM_MINE);
+    let contract = params.0.contract.as_deref().unwrap_or(litium_mine());
     match self.lcd.smart_query(contract, &serde_json::json!({"window_status": {}})).await {
         Ok(data) => Ok(crate::util::ok(&data)),
         Err(e) => Ok(crate::util::err(&e.to_string())),
@@ -739,7 +738,7 @@ async fn li_emission(
     &self,
     params: Parameters<crate::tools::ContractParam>,
 ) -> Result<CallToolResult, rmcp::ErrorData> {
-    let contract = params.0.contract.as_deref().unwrap_or(LITIUM_MINE);
+    let contract = params.0.contract.as_deref().unwrap_or(litium_mine());
     match self.lcd.smart_query(contract, &serde_json::json!({"emission_info": {}})).await {
         Ok(data) => Ok(crate::util::ok(&data)),
         Err(e) => Ok(crate::util::err(&e.to_string())),
@@ -752,7 +751,7 @@ async fn li_reward_estimate(
     params: Parameters<crate::tools::RewardEstimateParams>,
 ) -> Result<CallToolResult, rmcp::ErrorData> {
     let p = &params.0;
-    let contract = p.contract.as_deref().unwrap_or(LITIUM_MINE);
+    let contract = p.contract.as_deref().unwrap_or(litium_mine());
     match self
         .lcd
         .smart_query(
@@ -771,7 +770,7 @@ async fn li_mine_stats(
     &self,
     params: Parameters<crate::tools::ContractParam>,
 ) -> Result<CallToolResult, rmcp::ErrorData> {
-    let contract = params.0.contract.as_deref().unwrap_or(LITIUM_MINE);
+    let contract = params.0.contract.as_deref().unwrap_or(litium_mine());
     match self.lcd.smart_query(contract, &serde_json::json!({"stats": {}})).await {
         Ok(data) => Ok(crate::util::ok(&data)),
         Err(e) => Ok(crate::util::err(&e.to_string())),
@@ -784,7 +783,7 @@ async fn li_miner_stats(
     params: Parameters<crate::tools::MinerStatsParams>,
 ) -> Result<CallToolResult, rmcp::ErrorData> {
     let p = &params.0;
-    let contract = p.contract.as_deref().unwrap_or(LITIUM_MINE);
+    let contract = p.contract.as_deref().unwrap_or(litium_mine());
     match self
         .lcd
         .smart_query(
@@ -805,7 +804,7 @@ async fn li_recent_proofs(
 ) -> Result<CallToolResult, rmcp::ErrorData> {
     let p = &params.0;
     let limit = p.limit.unwrap_or(10).min(50).max(1);
-    let contract = p.contract.as_deref().unwrap_or(LITIUM_MINE);
+    let contract = p.contract.as_deref().unwrap_or(litium_mine());
     let query = format!(
         r#"query {{
   messages_by_address(args: {{addresses: "{contract}", types: "{{cosmwasm.wasm.v1.MsgExecuteContract}}"}}, limit: {limit}, order_by: {{transaction: {{block: {{height: desc}}}}}}) {{
@@ -828,7 +827,7 @@ async fn li_stake_config(
     &self,
     params: Parameters<crate::tools::ContractParam>,
 ) -> Result<CallToolResult, rmcp::ErrorData> {
-    let contract = params.0.contract.as_deref().unwrap_or(LITIUM_STAKE);
+    let contract = params.0.contract.as_deref().unwrap_or(litium_stake());
     match self.lcd.smart_query(contract, &serde_json::json!({"config": {}})).await {
         Ok(data) => Ok(crate::util::ok(&data)),
         Err(e) => Ok(crate::util::err(&e.to_string())),
@@ -840,7 +839,7 @@ async fn li_total_staked(
     &self,
     params: Parameters<crate::tools::ContractParam>,
 ) -> Result<CallToolResult, rmcp::ErrorData> {
-    let contract = params.0.contract.as_deref().unwrap_or(LITIUM_STAKE);
+    let contract = params.0.contract.as_deref().unwrap_or(litium_stake());
     match self.lcd.smart_query(contract, &serde_json::json!({"total_staked": {}})).await {
         Ok(data) => Ok(crate::util::ok(&data)),
         Err(e) => Ok(crate::util::err(&e.to_string())),
@@ -853,7 +852,7 @@ async fn li_stake_info(
     params: Parameters<crate::tools::StakeInfoParams>,
 ) -> Result<CallToolResult, rmcp::ErrorData> {
     let p = &params.0;
-    let contract = p.contract.as_deref().unwrap_or(LITIUM_STAKE);
+    let contract = p.contract.as_deref().unwrap_or(litium_stake());
     match self
         .lcd
         .smart_query(
@@ -872,7 +871,7 @@ async fn li_staking_stats(
     &self,
     params: Parameters<crate::tools::ContractParam>,
 ) -> Result<CallToolResult, rmcp::ErrorData> {
-    let contract = params.0.contract.as_deref().unwrap_or(LITIUM_STAKE);
+    let contract = params.0.contract.as_deref().unwrap_or(litium_stake());
     match self.lcd.smart_query(contract, &serde_json::json!({"staking_stats": {}})).await {
         Ok(data) => Ok(crate::util::ok(&data)),
         Err(e) => Ok(crate::util::err(&e.to_string())),
@@ -884,7 +883,7 @@ async fn li_refer_config(
     &self,
     params: Parameters<crate::tools::ContractParam>,
 ) -> Result<CallToolResult, rmcp::ErrorData> {
-    let contract = params.0.contract.as_deref().unwrap_or(LITIUM_REFER);
+    let contract = params.0.contract.as_deref().unwrap_or(litium_refer());
     match self.lcd.smart_query(contract, &serde_json::json!({"config": {}})).await {
         Ok(data) => Ok(crate::util::ok(&data)),
         Err(e) => Ok(crate::util::err(&e.to_string())),
@@ -897,7 +896,7 @@ async fn li_referrer_of(
     params: Parameters<crate::tools::ReferrerOfParams>,
 ) -> Result<CallToolResult, rmcp::ErrorData> {
     let p = &params.0;
-    let contract = p.contract.as_deref().unwrap_or(LITIUM_REFER);
+    let contract = p.contract.as_deref().unwrap_or(litium_refer());
     match self
         .lcd
         .smart_query(
@@ -917,7 +916,7 @@ async fn li_referral_info(
     params: Parameters<crate::tools::ReferralInfoParams>,
 ) -> Result<CallToolResult, rmcp::ErrorData> {
     let p = &params.0;
-    let contract = p.contract.as_deref().unwrap_or(LITIUM_REFER);
+    let contract = p.contract.as_deref().unwrap_or(litium_refer());
     match self
         .lcd
         .smart_query(
@@ -936,7 +935,7 @@ async fn li_community_pool(
     &self,
     params: Parameters<crate::tools::ContractParam>,
 ) -> Result<CallToolResult, rmcp::ErrorData> {
-    let contract = params.0.contract.as_deref().unwrap_or(LITIUM_REFER);
+    let contract = params.0.contract.as_deref().unwrap_or(litium_refer());
     match self.lcd.smart_query(contract, &serde_json::json!({"community_pool_balance": {}})).await {
         Ok(data) => Ok(crate::util::ok(&data)),
         Err(e) => Ok(crate::util::err(&e.to_string())),
@@ -974,31 +973,27 @@ async fn li_miner_tx_history(
     // ── lithium_write tools ──
 
 
-#[tool(description = "Submit a lithium mining proof with client-chosen difficulty")]
+#[tool(description = "Submit a lithium mining proof to the mine contract")]
 async fn li_submit_proof(
     &self,
     params: Parameters<crate::tools::SubmitProofParams>,
 ) -> Result<CallToolResult, rmcp::ErrorData> {
     let signing = self.require_signing()?;
     let p = &params.0;
-    let contract = p.contract.as_deref().unwrap_or(LITIUM_MINE);
-    let mut msg_inner = serde_json::json!({
-        "submit_proof": {
-            "hash": p.hash,
-            "nonce": p.nonce,
-            "miner_address": p.miner_address,
-            "challenge": p.challenge,
-            "difficulty": p.difficulty,
-            "timestamp": p.timestamp,
-        }
-    });
-    if let Some(ref referrer) = p.referrer {
-        msg_inner["submit_proof"]["referrer"] = serde_json::Value::String(referrer.clone());
-    }
+    let contract = p.contract.as_deref().unwrap_or(litium_mine());
+    let msg = lithium_cli::contract_types::MineExecuteMsg::SubmitProof {
+        hash: p.hash.clone(),
+        nonce: p.nonce,
+        miner_address: p.miner_address.clone(),
+        challenge: p.challenge.clone(),
+        difficulty: p.difficulty,
+        timestamp: p.timestamp,
+        referrer: p.referrer.clone(),
+    };
     let execute_msg = cosmos_sdk_proto::cosmwasm::wasm::v1::MsgExecuteContract {
         sender: signing.address().to_string(),
         contract: contract.to_string(),
-        msg: serde_json::to_vec(&msg_inner).unwrap(),
+        msg: serde_json::to_vec(&msg).unwrap(),
         funds: vec![],
     };
     let any = crate::clients::signing::encode_any(
@@ -1018,8 +1013,8 @@ async fn li_stake(
 ) -> Result<CallToolResult, rmcp::ErrorData> {
     let signing = self.require_signing()?;
     let p = &params.0;
-    let stake_contract = p.contract.as_deref().unwrap_or(LITIUM_STAKE);
-    // CW-20 send: execute on LITIUM_CORE to send LI to stake contract
+    let stake_contract = p.contract.as_deref().unwrap_or(litium_stake());
+    // CW-20 send: execute on litium_core() to send LI to stake contract
     let msg_inner = serde_json::json!({
         "send": {
             "contract": stake_contract,
@@ -1029,7 +1024,7 @@ async fn li_stake(
     });
     let execute_msg = cosmos_sdk_proto::cosmwasm::wasm::v1::MsgExecuteContract {
         sender: signing.address().to_string(),
-        contract: LITIUM_CORE.to_string(),
+        contract: litium_core().to_string(),
         msg: serde_json::to_vec(&msg_inner).unwrap(),
         funds: vec![],
     };
@@ -1050,7 +1045,7 @@ async fn li_unstake(
 ) -> Result<CallToolResult, rmcp::ErrorData> {
     let signing = self.require_signing()?;
     let p = &params.0;
-    let contract = p.contract.as_deref().unwrap_or(LITIUM_STAKE);
+    let contract = p.contract.as_deref().unwrap_or(litium_stake());
     let msg_inner = serde_json::json!({"unstake": {"amount": p.amount}});
     let execute_msg = cosmos_sdk_proto::cosmwasm::wasm::v1::MsgExecuteContract {
         sender: signing.address().to_string(),
@@ -1074,7 +1069,7 @@ async fn li_claim_rewards(
     params: Parameters<crate::tools::ContractParam>,
 ) -> Result<CallToolResult, rmcp::ErrorData> {
     let signing = self.require_signing()?;
-    let contract = params.0.contract.as_deref().unwrap_or(LITIUM_STAKE);
+    let contract = params.0.contract.as_deref().unwrap_or(litium_stake());
     let msg_inner = serde_json::json!({"claim_staking_rewards": {}});
     let execute_msg = cosmos_sdk_proto::cosmwasm::wasm::v1::MsgExecuteContract {
         sender: signing.address().to_string(),
@@ -1098,7 +1093,7 @@ async fn li_claim_unbonding(
     params: Parameters<crate::tools::ContractParam>,
 ) -> Result<CallToolResult, rmcp::ErrorData> {
     let signing = self.require_signing()?;
-    let contract = params.0.contract.as_deref().unwrap_or(LITIUM_STAKE);
+    let contract = params.0.contract.as_deref().unwrap_or(litium_stake());
     let msg_inner = serde_json::json!({"claim_unbonding": {}});
     let execute_msg = cosmos_sdk_proto::cosmwasm::wasm::v1::MsgExecuteContract {
         sender: signing.address().to_string(),
@@ -1122,7 +1117,7 @@ async fn li_claim_referral_rewards(
     params: Parameters<crate::tools::ContractParam>,
 ) -> Result<CallToolResult, rmcp::ErrorData> {
     let signing = self.require_signing()?;
-    let contract = params.0.contract.as_deref().unwrap_or(LITIUM_REFER);
+    let contract = params.0.contract.as_deref().unwrap_or(litium_refer());
     let msg_inner = serde_json::json!({"claim_rewards": {}});
     let execute_msg = cosmos_sdk_proto::cosmwasm::wasm::v1::MsgExecuteContract {
         sender: signing.address().to_string(),
@@ -1143,7 +1138,7 @@ async fn li_claim_referral_rewards(
     // ── mining tool ──
 
 #[cfg(feature = "mining")]
-#[tool(description = "Mine a lithium proof using CPU. Fetches latest block hash as challenge, runs UniversalHash PoW solver, returns proof details. Optionally auto-submits on-chain.")]
+#[tool(description = "Mine a lithium proof using CPU. Generates random challenge, runs UniversalHash PoW solver, returns proof details. Optionally auto-submits on-chain.")]
 async fn li_mine_proof(
     &self,
     params: Parameters<crate::tools::MineProofParams>,
@@ -1158,45 +1153,24 @@ async fn li_mine_proof(
     let timeout_secs = p.timeout_seconds.unwrap_or(30).min(300);
     let batch_size = p.batch_size.unwrap_or(65536);
     let auto_submit = p.auto_submit.unwrap_or(false);
+    let contract = p.contract.as_deref().unwrap_or(litium_mine());
 
-    // Fetch latest block hash as challenge
-    let block_data = match self
-        .lcd
-        .get_json("/cosmos/base/tendermint/v1beta1/blocks/latest")
-        .await
-    {
-        Ok(d) => d,
-        Err(e) => return Ok(crate::util::err(&format!("Failed to fetch block: {e}"))),
-    };
-    let block_hash_raw = block_data["block_id"]["hash"]
-        .as_str()
-        .unwrap_or_default()
-        .to_string();
-    // LCD returns base64, try base64 first then hex
-    let challenge_bytes = if let Ok(b) = base64::Engine::decode(
-        &base64::engine::general_purpose::STANDARD,
-        &block_hash_raw,
-    ) {
-        if b.len() == 32 { b } else {
-            return Ok(crate::util::err(&format!("Invalid block hash length: {}", b.len())));
-        }
-    } else if let Ok(b) = hex::decode(&block_hash_raw) {
-        if b.len() == 32 { b } else {
-            return Ok(crate::util::err(&format!("Invalid block hash length: {}", b.len())));
-        }
-    } else {
-        return Ok(crate::util::err(&format!("Cannot decode block hash: {block_hash_raw}")));
-    };
-    let block_hash_hex = hex::encode(&challenge_bytes);
-    let block_height = block_data["block"]["header"]["height"]
-        .as_str()
-        .unwrap_or("0")
-        .to_string();
+    // Random 32-byte challenge (matches lithium-cli canonical approach)
+    let mut challenge_bytes = [0u8; 32];
+    rand::RngCore::fill_bytes(&mut rand::thread_rng(), &mut challenge_bytes);
+    let challenge_hex = hex::encode(challenge_bytes);
+
+    // Timestamp = now - 5s to avoid "timestamp in future" rejection
+    let timestamp = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap()
+        .as_secs()
+        .saturating_sub(5);
 
     // Random start nonce
     let start_nonce = rand::random::<u64>();
 
-    let challenge = challenge_bytes.clone();
+    let challenge = challenge_bytes.to_vec();
     let start = std::time::Instant::now();
 
     // Run CPU-bound mining in a blocking task
@@ -1242,17 +1216,12 @@ async fn li_mine_proof(
     match proof {
         Some((nonce, hash)) => {
             let hash_hex = hex::encode(hash);
-            let timestamp = std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .unwrap()
-                .as_secs();
 
             let mut result = serde_json::json!({
                 "status": "found",
                 "nonce": nonce,
                 "hash": hash_hex,
-                "challenge": block_hash_hex,
-                "block_height": block_height,
+                "challenge": challenge_hex,
                 "difficulty": difficulty,
                 "timestamp": timestamp,
                 "elapsed_seconds": format!("{elapsed_secs:.2}"),
@@ -1263,26 +1232,20 @@ async fn li_mine_proof(
             // Auto-submit if requested
             if auto_submit {
                 if let Some(signing) = &self.signing {
-                    let contract = p.contract.as_deref().unwrap_or(LITIUM_MINE);
-                    let mut msg_inner = serde_json::json!({
-                        "submit_proof": {
-                            "hash": hash_hex,
-                            "nonce": nonce,
-                            "miner_address": signing.address(),
-                            "challenge": block_hash_hex,
-                            "difficulty": difficulty,
-                            "timestamp": timestamp,
-                        }
-                    });
-                    if let Some(ref referrer) = p.referrer {
-                        msg_inner["submit_proof"]["referrer"] =
-                            serde_json::Value::String(referrer.clone());
-                    }
+                    let msg = lithium_cli::contract_types::MineExecuteMsg::SubmitProof {
+                        hash: hash_hex.clone(),
+                        nonce,
+                        miner_address: signing.address().to_string(),
+                        challenge: challenge_hex.clone(),
+                        difficulty,
+                        timestamp,
+                        referrer: p.referrer.clone(),
+                    };
                     let execute_msg =
                         cosmos_sdk_proto::cosmwasm::wasm::v1::MsgExecuteContract {
                             sender: signing.address().to_string(),
                             contract: contract.to_string(),
-                            msg: serde_json::to_vec(&msg_inner).unwrap(),
+                            msg: serde_json::to_vec(&msg).unwrap(),
                             funds: vec![],
                         };
                     let any = crate::clients::signing::encode_any(
@@ -1308,8 +1271,7 @@ async fn li_mine_proof(
         None => {
             let result = serde_json::json!({
                 "status": "timeout",
-                "challenge": block_hash_hex,
-                "block_height": block_height,
+                "challenge": challenge_hex,
                 "difficulty": difficulty,
                 "elapsed_seconds": format!("{elapsed_secs:.2}"),
                 "total_hashes": total_hashes,
