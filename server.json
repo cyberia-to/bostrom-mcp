@@ -2,7 +2,7 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.cyberia-to/bostrom-mcp",
   "title": "Bostrom MCP",
-  "description": "86-tool MCP server for Bostrom blockchain: read chain state and sign transactions",
+  "description": "85-tool MCP server for Bostrom blockchain: read chain state, sign transactions, mine Lithium proofs",
   "repository": {
     "url": "https://github.com/cyberia-to/bostrom-mcp",
     "source": "github"

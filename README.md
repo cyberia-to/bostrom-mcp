@@ -2,11 +2,34 @@
 
 [MCP](https://modelcontextprotocol.io) server for the [Bostrom](https://cyb.ai) blockchain — knowledge graph, economy, lithium mining, governance, infrastructure, and **autonomous agent capabilities**.
 
-89 tools: 45 read + 44 write. Read tools work with zero configuration. Write tools require a wallet mnemonic.
+85 tools: 45 read + 40 write. Read tools work with zero configuration. Write tools require a wallet mnemonic. Built-in CPU miner for Lithium proof-of-work.
 
 ## Installation
 
-### Option 1: Claude Desktop
+### Option 1: Build from source
+
+```bash
+cd rust
+cargo build --release
+```
+
+Binary: `rust/target/release/bostrom-mcp`
+
+### Option 2: Claude Code (CLI)
+
+```bash
+claude mcp add bostrom -- /path/to/bostrom-mcp
+```
+
+With write tools:
+
+```bash
+claude mcp add bostrom \
+  -e BOSTROM_MNEMONIC="your twelve word mnemonic phrase here ..." \
+  -- /path/to/bostrom-mcp
+```
+
+### Option 3: Claude Desktop
 
 Open **Settings > Developer > Edit Config** and add:
 
@@ -14,23 +37,7 @@ Open **Settings > Developer > Edit Config** and add:
 {
   "mcpServers": {
     "bostrom": {
-      "command": "npx",
-      "args": ["-y", "bostrom-mcp"]
-    }
-  }
-}
-```
-
-Restart Claude Desktop. You should see the Bostrom tools in the tool list.
-
-To enable write tools (send tokens, create cyberlinks, etc.), add your wallet mnemonic:
-
-```jsonc
-{
-  "mcpServers": {
-    "bostrom": {
-      "command": "npx",
-      "args": ["-y", "bostrom-mcp"],
+      "command": "/path/to/bostrom-mcp",
       "env": {
         "BOSTROM_MNEMONIC": "your twelve word mnemonic phrase here ..."
       }
@@ -39,52 +46,15 @@ To enable write tools (send tokens, create cyberlinks, etc.), add your wallet mn
 }
 ```
 
-### Option 2: Claude Code (CLI)
+### Option 4: Cursor
 
-```bash
-claude mcp add bostrom -- npx -y bostrom-mcp
-```
-
-With write tools:
-
-```bash
-claude mcp add bostrom -e BOSTROM_MNEMONIC="your twelve word mnemonic phrase here ..." -- npx -y bostrom-mcp
-```
-
-### Option 3: Cursor
-
-Open **Settings > MCP Servers > Add Server** and configure:
-
-- **Name**: `bostrom`
-- **Type**: `command`
-- **Command**: `npx -y bostrom-mcp`
-
-Or add to `.cursor/mcp.json` in your project:
+Add to `.cursor/mcp.json` in your project:
 
 ```jsonc
 {
   "mcpServers": {
     "bostrom": {
-      "command": "npx",
-      "args": ["-y", "bostrom-mcp"],
-      "env": {
-        "BOSTROM_MNEMONIC": "your twelve word mnemonic phrase here ..."
-      }
-    }
-  }
-}
-```
-
-### Option 4: Windsurf
-
-Add to `~/.codeium/windsurf/mcp_config.json`:
-
-```jsonc
-{
-  "mcpServers": {
-    "bostrom": {
-      "command": "npx",
-      "args": ["-y", "bostrom-mcp"],
+      "command": "/path/to/bostrom-mcp",
       "env": {
         "BOSTROM_MNEMONIC": "your twelve word mnemonic phrase here ..."
       }
@@ -95,13 +65,7 @@ Add to `~/.codeium/windsurf/mcp_config.json`:
 
 ### Option 5: Any MCP client
 
-Run the server directly:
-
-```bash
-npx -y bostrom-mcp
-```
-
-The server communicates over stdio using the [Model Context Protocol](https://modelcontextprotocol.io). Any MCP-compatible client can connect to it.
+The binary communicates over stdio using the [Model Context Protocol](https://modelcontextprotocol.io). Any MCP-compatible client can connect to it.
 
 ### Getting a wallet
 
@@ -112,7 +76,7 @@ Write tools require a Bostrom wallet mnemonic. If you don't have one:
 3. Fund it with BOOT tokens (needed for gas fees)
 4. Set `BOSTROM_MNEMONIC` in your MCP client config
 
-Without a mnemonic, all 44 read tools work normally — you can explore the knowledge graph, check balances, view proposals, and more.
+Without a mnemonic, all 45 read tools work normally — you can explore the knowledge graph, check balances, view proposals, mine proofs, and more.
 
 ## Environment variables
 
@@ -128,6 +92,14 @@ Without a mnemonic, all 44 read tools work normally — you can explore the know
 | `BOSTROM_MAX_SEND_AMOUNT` | — | Circuit breaker: max amount per send (optional) |
 
 ## Tools
+
+### Infrastructure (3)
+
+| Tool | Description |
+|------|-------------|
+| `infra_chain_status` | Latest block height, time, chain ID, sync status |
+| `infra_tx_search` | Search transactions by sender, contract, or message type |
+| `infra_tx_detail` | Full decoded transaction by hash |
 
 ### Knowledge Graph — Read (6)
 
@@ -173,6 +145,58 @@ Without a mnemonic, all 44 read tools work normally — you can explore the know
 | `wallet_claim_rewards` | Claim staking rewards from a validator |
 | `wallet_vote` | Vote on a governance proposal |
 
+### Governance (4)
+
+| Tool | Description |
+|------|-------------|
+| `gov_proposals` | List proposals (active, passed, rejected, all) |
+| `gov_proposal_detail` | Full proposal details with vote tally |
+| `gov_validators` | Active validator set with commission and voting power |
+| `gov_params` | Chain parameters |
+
+### Lithium Mining — Read (21)
+
+| Tool | Description |
+|------|-------------|
+| `li_block_context` | Current block hash and data hash for mining |
+| `li_core_config` | Token denom, admin, paused status |
+| `li_burn_stats` | Total LI burned |
+| `li_total_minted` | Total LI minted and supply cap |
+| `li_mine_state` | Full mine state: config, window status, stats, emission |
+| `li_mine_config` | Max proof age, gas cost, window size, PID interval, min difficulty |
+| `li_window_status` | Sliding window: proof count, d_rate, base rate, alpha, beta |
+| `li_emission` | Emission breakdown: mining, staking, referral |
+| `li_reward_estimate` | Estimate LI reward for a given difficulty |
+| `li_mine_stats` | Aggregate: total proofs, rewards, unique miners |
+| `li_miner_stats` | Per-miner: proofs submitted, total rewards, last proof time |
+| `li_recent_proofs` | Recent proof submission transactions |
+| `li_stake_config` | Unbonding period, linked contracts |
+| `li_total_staked` | Total LI staked across all stakers |
+| `li_stake_info` | Staking state for an address |
+| `li_staking_stats` | Reserve, total staked, reward index |
+| `li_refer_config` | Referral contract config |
+| `li_referrer_of` | Who referred a specific miner |
+| `li_referral_info` | Referral rewards and count for a referrer |
+| `li_community_pool` | Unclaimed community pool balance |
+| `li_miner_tx_history` | Miner's recent contract TX history |
+
+### Lithium Mining — Write (5)
+
+| Tool | Description |
+|------|-------------|
+| `li_submit_proof` | Submit a mining proof with client-chosen difficulty |
+| `li_stake` | Stake LI tokens |
+| `li_unstake` | Unstake LI tokens |
+| `li_claim_rewards` | Claim LI staking rewards |
+| `li_claim_unbonding` | Claim matured unbonding LI tokens |
+| `li_claim_referral_rewards` | Claim accumulated referral rewards |
+
+### Lithium Mining — CPU Miner (1)
+
+| Tool | Description |
+|------|-------------|
+| `li_mine_proof` | Mine a proof using CPU (UniversalHash PoW), optionally auto-submit on-chain |
+
 ### Token Factory (6)
 
 | Tool | Description |
@@ -208,48 +232,6 @@ Without a mnemonic, all 44 read tools work normally — you can explore the know
 | `wasm_update_admin` | Update contract admin |
 | `wasm_clear_admin` | Clear contract admin (irreversible) |
 
-### Lithium Mining — Read (26)
-
-| Tool | Description |
-|------|-------------|
-| `li_block_context` | Current block hash and data hash for lithium v1 mining |
-| `li_core_config` | Token denom, admin, paused status |
-| `li_burn_stats` | Total LI burned |
-| `li_total_minted` | Total LI minted and supply cap |
-| `li_mine_state` | Full mine state: config, seed, difficulty, stats, epoch, proofs, emission |
-| `li_mine_config` | Difficulty, base reward, period duration, target proofs |
-| `li_seed` | Current mining seed and interval |
-| `li_difficulty` | Current difficulty, min profitable, window proof count |
-| `li_epoch_status` | Current epoch: start/end blocks, proof count, target solutions |
-| `li_proof_stats` | Epoch proof counters and total work |
-| `li_emission` | Emission breakdown: mining, staking, referral |
-| `li_reward_estimate` | Estimate LI reward for a given difficulty |
-| `li_mine_stats` | Aggregate: total proofs, rewards, unique miners |
-| `li_miner_stats` | Per-miner: proofs submitted, total rewards, last proof height |
-| `li_miner_epoch_stats` | Miner's proof count for a specific epoch |
-| `li_verify_proof` | Dry-run verify a proof without submitting |
-| `li_recent_proofs` | Recent proof submission transactions |
-| `li_stake_config` | Unbonding period, linked contracts |
-| `li_total_staked` | Total LI staked across all stakers |
-| `li_stake_info` | Staking state for an address |
-| `li_staking_stats` | Reserve, total staked, reward index |
-| `li_refer_config` | Referral contract config |
-| `li_referrer_of` | Who referred a specific miner |
-| `li_referral_info` | Referral rewards and count for a referrer |
-| `li_community_pool` | Unclaimed community pool balance |
-| `li_miner_tx_history` | Miner's recent contract TX history |
-
-### Lithium Mining — Write (6)
-
-| Tool | Description |
-|------|-------------|
-| `li_submit_proof` | Submit a v4 seed-based mining proof |
-| `li_submit_lithium_proof` | Submit a lithium v1 proof with block context |
-| `li_stake` | Stake LI tokens |
-| `li_unstake` | Unstake LI tokens |
-| `li_claim_rewards` | Claim LI staking rewards |
-| `li_set_referrer` | Set referrer for your address |
-
 ### Energy Grid (4)
 
 | Tool | Description |
@@ -257,16 +239,7 @@ Without a mnemonic, all 44 read tools work normally — you can explore the know
 | `grid_create_route` | Create an energy route to another address |
 | `grid_edit_route` | Edit route allocated value (millivolt/milliampere) |
 | `grid_delete_route` | Delete an energy route |
-| `grid_list_routes` | List all routes from an address |
-
-### Governance (4)
-
-| Tool | Description |
-|------|-------------|
-| `gov_proposals` | List proposals (active, passed, rejected, all) |
-| `gov_proposal_detail` | Full proposal details with vote tally |
-| `gov_validators` | Active validator set with commission and voting power |
-| `gov_params` | Chain parameters |
+| `grid_list_routes` | List all energy routes from an address |
 
 ### IBC (2)
 
@@ -275,20 +248,12 @@ Without a mnemonic, all 44 read tools work normally — you can explore the know
 | `ibc_transfer` | IBC token transfer to another chain |
 | `ibc_channels` | List IBC channels and their status |
 
-### Infrastructure (3)
-
-| Tool | Description |
-|------|-------------|
-| `infra_chain_status` | Latest block height, time, chain ID, sync status |
-| `infra_tx_search` | Search transactions by sender, contract, or message type |
-| `infra_tx_detail` | Full decoded transaction by hash |
-
 ## Agent workflows
 
 With write tools enabled, an LLM agent can perform autonomous workflows:
 
-- **Lithium mining (v4)**: `li_mine_state` → compute proof → `li_verify_proof` → `li_submit_proof` → `li_stake`
-- **Lithium mining (v1)**: `li_block_context` + `li_epoch_status` → compute proof → `li_submit_lithium_proof` → `li_stake`
+- **Lithium mining**: `li_mine_proof(difficulty: 16, auto_submit: true)` — single-tool mining with auto-submission
+- **Manual mining**: `li_mine_state` → `li_mine_proof` → `li_submit_proof` → `li_stake`
 - **Token launch + market**: `token_create` → `token_set_metadata` → `token_mint` → `liquidity_create_pool` → `graph_create_knowledge`
 - **Knowledge graph**: `graph_pin_content` → `graph_create_cyberlink` → `graph_search` → `graph_rank`
 - **Governance**: `gov_proposals` → `gov_proposal_detail` → `wallet_vote`
@@ -298,9 +263,10 @@ With write tools enabled, an LLM agent can perform autonomous workflows:
 ## Development
 
 ```bash
-npm install
-npm run build
-node dist/index.js
+cd rust
+cargo build --release
+# Without mining (smaller binary):
+cargo build --release --no-default-features
 ```
 
 ## License
