@@ -2419,6 +2419,8 @@ checksum = "562d481066bde0658276a35467c4af00bdc6ee726305698a55b86e61d7ad82bb"
 [[package]]
 name = "uhash-core"
 version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dd96a2f5d8a06492c7ffd78c509901bdb1357b435fb80e68635d63e1d1c495c4"
 dependencies = [
  "aes",
  "blake3",
@@ -2430,6 +2432,8 @@ dependencies = [
 [[package]]
 name = "uhash-prover"
 version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6c5a7b1aca8026e206d4056e1c9945bbe8fbaf961f3996e0f9ff40e777ebcc66"
 dependencies = [
  "anyhow",
  "block",
@@ -2442,6 +2446,8 @@ dependencies = [
 [[package]]
 name = "uhash-types"
 version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7a7a5dadc70e24adffc858ad3db3bdd83c4e25d48da14fd0fb8ec5a74c02c4b8"
 
 [[package]]
 name = "unicase"
