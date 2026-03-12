@@ -1127,9 +1127,9 @@ checksum = "6373607a59f0be73a39b6fe456b8192fcc3585f602af20751600e974dd455e77"
 
 [[package]]
 name = "lithium-cli"
-version = "0.1.3"
+version = "0.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1c5f4f00e4c0997ce7ee1071f9e33b125294efce8d0b4a5eb0ca470a886026f1"
+checksum = "9f50865d506381b815f8ac1c293fbb5f7e95461e372806f815e4742108e837ed"
 dependencies = [
  "hex",
  "serde",
