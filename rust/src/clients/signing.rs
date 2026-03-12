@@ -3,6 +3,7 @@ use base64::{Engine, engine::general_purpose::STANDARD as BASE64};
 use bip32::secp256k1::ecdsa::{SigningKey, signature::Signer};
 use prost::Message;
 use serde_json::Value;
+use ripemd::Ripemd160;
 use sha2::{Digest, Sha256};
 use std::time::Duration;
 
@@ -17,6 +18,7 @@ pub struct SigningClient {
     signing_key: SigningKey,
     pub_key_bytes: Vec<u8>,
     lcd: LcdClient,
+    rpc_url: String,
     gas_price: f64,
     gas_multiplier: f64,
     min_gas: u64,
@@ -40,7 +42,7 @@ impl SigningClient {
     pub fn from_mnemonic(
         mnemonic: &str,
         lcd: LcdClient,
-        _rpc_url: &str,
+        rpc_url: &str,
         gas_price: f64,
         gas_multiplier: f64,
         min_gas: u64,
@@ -57,11 +59,11 @@ impl SigningClient {
         let verifying_key = signing_key.verifying_key();
         let pub_key_bytes = verifying_key.to_encoded_point(true).as_bytes().to_vec();
 
-        // bech32 address from sha256(pubkey)[..20]
+        // bech32 address from ripemd160(sha256(pubkey))
         let hash = Sha256::digest(&pub_key_bytes);
-        let hash20 = &hash[..20];
+        let hash20 = Ripemd160::digest(&hash);
         let address =
-            bech32::encode::<bech32::Bech32>(bech32::Hrp::parse("bostrom").unwrap(), hash20)
+            bech32::encode::<bech32::Bech32>(bech32::Hrp::parse("bostrom").unwrap(), &hash20)
                 .context("bech32 encode")?;
 
         let http = reqwest::Client::builder()
@@ -73,6 +75,7 @@ impl SigningClient {
             signing_key,
             pub_key_bytes,
             lcd,
+            rpc_url: rpc_url.to_string(),
             gas_price,
             gas_multiplier,
             min_gas,
@@ -102,12 +105,20 @@ impl SigningClient {
         let path = format!("/cosmos/auth/v1beta1/accounts/{}", self.address);
         let resp: Value = self.lcd.get_json(&path).await?;
         let account = &resp["account"];
-        let account_number: u64 = account["account_number"]
+        // Handle nested account types (BaseAccount, PeriodicVestingAccount, etc.)
+        let base = if account["base_vesting_account"]["base_account"]["account_number"].is_string() {
+            &account["base_vesting_account"]["base_account"]
+        } else if account["base_account"]["account_number"].is_string() {
+            &account["base_account"]
+        } else {
+            account
+        };
+        let account_number: u64 = base["account_number"]
             .as_str()
             .unwrap_or("0")
             .parse()
             .unwrap_or(0);
-        let sequence: u64 = account["sequence"]
+        let sequence: u64 = base["sequence"]
             .as_str()
             .unwrap_or("0")
             .parse()
@@ -129,6 +140,13 @@ impl SigningClient {
             .await?
             .json()
             .await?;
+        // Check for error response
+        if let Some(code) = resp.get("code").and_then(|c| c.as_i64()) {
+            if code != 0 {
+                let msg = resp.get("message").and_then(|m| m.as_str()).unwrap_or("unknown");
+                bail!("Simulate failed (code {code}): {msg}");
+            }
+        }
         let gas_used: u64 = resp["gas_info"]["gas_used"]
             .as_str()
             .unwrap_or("0")
@@ -215,9 +233,8 @@ impl SigningClient {
             account_number,
         };
         let sim_sign_bytes = sim_sign_doc.encode_to_vec();
-        let sim_hash = Sha256::digest(&sim_sign_bytes);
         let sim_signature: bip32::secp256k1::ecdsa::Signature =
-            self.signing_key.sign(&sim_hash);
+            self.signing_key.sign(&sim_sign_bytes);
         let sim_sig_bytes: Vec<u8> = sim_signature.to_bytes().to_vec();
         let sim_tx = cosmos_sdk_proto::cosmos::tx::v1beta1::TxRaw {
             body_bytes: tx_body_bytes.clone(),
@@ -241,8 +258,7 @@ impl SigningClient {
             account_number,
         };
         let sign_bytes = sign_doc.encode_to_vec();
-        let hash = Sha256::digest(&sign_bytes);
-        let signature: bip32::secp256k1::ecdsa::Signature = self.signing_key.sign(&hash);
+        let signature: bip32::secp256k1::ecdsa::Signature = self.signing_key.sign(&sign_bytes);
         let sig_bytes: Vec<u8> = signature.to_bytes().to_vec();
 
         let tx_raw = cosmos_sdk_proto::cosmos::tx::v1beta1::TxRaw {
@@ -252,51 +268,36 @@ impl SigningClient {
         };
         let tx_bytes = tx_raw.encode_to_vec();
 
-        // Broadcast
-        let broadcast_body = serde_json::json!({
-            "tx_bytes": BASE64.encode(&tx_bytes),
-            "mode": "BROADCAST_MODE_SYNC",
-        });
-        let url = format!("{}/cosmos/tx/v1beta1/broadcast", self.lcd.base_url);
+        // Broadcast via RPC broadcast_tx_sync
+        let url = format!("{}/broadcast_tx_sync?tx=0x{}", self.rpc_url, hex::encode(&tx_bytes));
         let resp: Value = self
             .http
-            .post(&url)
-            .json(&broadcast_body)
+            .get(&url)
             .send()
             .await
             .context("broadcast tx")?
             .json()
             .await?;
 
-        let tx_response = &resp["tx_response"];
-        let code = tx_response["code"].as_i64().unwrap_or(-1);
-        if code != 0 {
-            let raw_log = tx_response["raw_log"]
-                .as_str()
+        let result = &resp["result"];
+        if result.is_null() {
+            let err = resp.get("error").and_then(|e| e.get("data")).and_then(|d| d.as_str())
+                .or_else(|| resp.get("error").and_then(|e| e.get("message")).and_then(|m| m.as_str()))
                 .unwrap_or("unknown error");
-            bail!("Transaction failed (code {code}): {raw_log}");
+            bail!("Broadcast failed: {err}");
         }
+        let code = result["code"].as_i64().unwrap_or(-1);
+        if code != 0 {
+            let log = result["log"].as_str().unwrap_or("unknown error");
+            bail!("Transaction failed (code {code}): {log}");
+        }
+        let hash = result["hash"].as_str().unwrap_or("").to_string();
 
         Ok(TxResult {
-            tx_hash: tx_response["txhash"]
-                .as_str()
-                .unwrap_or("")
-                .to_string(),
-            height: tx_response["height"]
-                .as_str()
-                .unwrap_or("0")
-                .parse()
-                .unwrap_or(0),
-            gas_used: tx_response["gas_used"]
-                .as_str()
-                .unwrap_or("0")
-                .parse()
-                .unwrap_or(0),
-            gas_wanted: tx_response["gas_wanted"]
-                .as_str()
-                .unwrap_or("0")
-                .parse()
-                .unwrap_or(0),
+            tx_hash: hash,
+            height: 0,  // sync broadcast doesn't return height
+            gas_used: gas_limit as i64,
+            gas_wanted: gas_limit as i64,
             code,
         })
     }

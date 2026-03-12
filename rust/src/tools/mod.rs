@@ -230,11 +230,11 @@ pub struct SubmitProofParams {
     pub nonce: u64,
     #[schemars(description = "Miner address")]
     pub miner_address: String,
-    #[schemars(description = "Challenge string")]
+    #[schemars(description = "Challenge hex string (32 bytes)")]
     pub challenge: String,
-    #[schemars(description = "Difficulty (minimum 1)")]
-    pub difficulty: u64,
-    #[schemars(description = "Timestamp of proof generation")]
+    #[schemars(description = "Difficulty in bits")]
+    pub difficulty: u32,
+    #[schemars(description = "Timestamp (unix seconds)")]
     pub timestamp: u64,
     #[schemars(description = "Optional referrer address")]
     pub referrer: Option<String>,
