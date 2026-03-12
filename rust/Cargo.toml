@@ -1,6 +1,6 @@
 [package]
 name = "bostrom-mcp"
-version = "0.7.0"
+version = "0.8.0"
 edition = "2021"
 description = "85-tool MCP server for Bostrom blockchain: read chain state, sign transactions, mine Lithium proofs"
 license = "MIT"
@@ -32,4 +32,4 @@ bech32 = "0.11"
 rand = "0.8"
 uhash-prover = { version = "0.5", optional = true, default-features = false, features = ["cpu"] }
 uhash-core = { version = "0.5", optional = true }
-lithium-cli = { version = "0.1.2", default-features = false }
+lithium-cli = { version = "0.1.3", default-features = false }

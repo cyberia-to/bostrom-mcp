@@ -166,7 +166,7 @@ dependencies = [
 
 [[package]]
 name = "bostrom-mcp"
-version = "0.7.0"
+version = "0.8.0"
 dependencies = [
  "anyhow",
  "base64",
@@ -1127,9 +1127,9 @@ checksum = "6373607a59f0be73a39b6fe456b8192fcc3585f602af20751600e974dd455e77"
 
 [[package]]
 name = "lithium-cli"
-version = "0.1.2"
+version = "0.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f05a1d0ea18a4a9818b5c27c6eb4c90a594c08b0d77fe26943802fef92cd93a9"
+checksum = "1c5f4f00e4c0997ce7ee1071f9e33b125294efce8d0b4a5eb0ca470a886026f1"
 dependencies = [
  "hex",
  "serde",

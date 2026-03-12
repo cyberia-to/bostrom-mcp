@@ -630,30 +630,6 @@ async fn graph_create_knowledge(
 
     // ── lithium tools ──
 
-
-
-#[tool(description = "Get current block hash and data hash (cyberlinks merkle) for lithium v1 mining")]
-async fn li_block_context(&self) -> Result<CallToolResult, rmcp::ErrorData> {
-    match self
-        .lcd
-        .get_json("/cosmos/base/tendermint/v1beta1/blocks/latest")
-        .await
-    {
-        Ok(data) => {
-            let block = &data["block"];
-            let header = &block["header"];
-            let result = serde_json::json!({
-                "height": header["height"],
-                "block_hash": data.get("block_id").and_then(|b| b.get("hash")),
-                "cyberlinks_merkle": header.get("data_hash"),
-                "time": header["time"],
-            });
-            Ok(crate::util::ok(&result))
-        }
-        Err(e) => Ok(crate::util::err(&e.to_string())),
-    }
-}
-
 #[tool(description = "Get litium-core config: token_denom, admin, paused")]
 async fn li_core_config(
     &self,
