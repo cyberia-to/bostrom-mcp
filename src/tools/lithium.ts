@@ -218,6 +218,19 @@ export function registerLithiumTools(server: McpServer) {
     safe(async ({ contract }) => ok(await svc.getStakingStats(contract))),
   );
 
+  server.registerTool(
+    "li_total_pending_rewards",
+    {
+      description:
+        "Get total accrued-but-unminted staking rewards. Used to compute effective circulating supply (minted - burned + pending).",
+      inputSchema: {
+        contract: z.string().default(LITIUM_STAKE).describe("litium-stake contract address"),
+      },
+      annotations: READ_ONLY_ANNOTATIONS,
+    },
+    safe(async ({ contract }) => ok(await svc.getStakeTotalPendingRewards(contract))),
+  );
+
   // ── litium-refer ─────────────────────────────────────────────
 
   server.registerTool(
