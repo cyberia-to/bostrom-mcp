@@ -163,8 +163,8 @@ Without a mnemonic, all 45 read tools work normally — you can explore the know
 | `li_burn_stats` | Total LI burned |
 | `li_total_minted` | Total LI minted and supply cap |
 | `li_mine_state` | Full mine state: config, window status, stats, emission |
-| `li_mine_config` | Max proof age, gas cost, window size, PID interval, min difficulty |
-| `li_window_status` | Sliding window: proof count, d_rate, base rate, alpha, beta |
+| `li_mine_config` | Max proof age, gas cost, window size, PID interval, min profitable difficulty |
+| `li_window_status` | Sliding window: proof count, d_rate, base rate, min profitable difficulty, alpha, beta |
 | `li_emission` | Emission breakdown: mining, staking, referral |
 | `li_reward_estimate` | Estimate LI reward for a given difficulty |
 | `li_mine_stats` | Aggregate: total proofs, rewards, unique miners |
@@ -252,7 +252,7 @@ Without a mnemonic, all 45 read tools work normally — you can explore the know
 
 With write tools enabled, an LLM agent can perform autonomous workflows:
 
-- **Lithium mining**: `li_mine_proof(difficulty: 16, auto_submit: true)` — single-tool mining with auto-submission
+- **Lithium mining**: `li_mine_proof(auto_submit: true)` — single-tool mining with auto-submission (difficulty auto-set from contract)
 - **Manual mining**: `li_mine_state` → `li_mine_proof` → `li_submit_proof` → `li_stake`
 - **Token launch + market**: `token_create` → `token_set_metadata` → `token_mint` → `liquidity_create_pool` → `graph_create_knowledge`
 - **Knowledge graph**: `graph_pin_content` → `graph_create_cyberlink` → `graph_search` → `graph_rank`

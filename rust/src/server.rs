@@ -703,7 +703,7 @@ async fn li_mine_config(
     }
 }
 
-#[tool(description = "Get sliding window status: proof_count, window_d_rate, window_entries, base_rate, alpha, beta")]
+#[tool(description = "Get sliding window status: proof_count, window_d_rate, window_entries, base_rate, min_profitable_difficulty, alpha, beta")]
 async fn li_window_status(
     &self,
     params: Parameters<crate::tools::ContractParam>,
