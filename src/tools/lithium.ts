@@ -67,7 +67,7 @@ export function registerLithiumTools(server: McpServer) {
     "li_mine_config",
     {
       description:
-        "Get litium-mine config: max_proof_age, estimated_gas_cost_uboot, window_size, pid_interval, min_difficulty, alpha, beta, fee_bucket_duration, fee_num_buckets, warmup_base_rate, core/stake/refer/token contracts",
+        "Get litium-mine config: max_proof_age, estimated_gas_cost_uboot, window_size, pid_interval, min_profitable_difficulty, alpha, beta, fee_bucket_duration, fee_num_buckets, warmup_base_rate, core/stake/refer/token contracts",
       inputSchema: {
         contract: z.string().default(LITIUM_MINE).describe("litium-mine contract address"),
       },

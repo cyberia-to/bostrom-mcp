@@ -691,7 +691,7 @@ async fn li_mine_state(
     Ok(crate::util::ok(&result))
 }
 
-#[tool(description = "Get litium-mine config: max_proof_age, estimated_gas_cost_uboot, window_size, pid_interval, min_difficulty, alpha, beta")]
+#[tool(description = "Get litium-mine config: max_proof_age, estimated_gas_cost_uboot, window_size, pid_interval, min_profitable_difficulty, alpha, beta")]
 async fn li_mine_config(
     &self,
     params: Parameters<crate::tools::ContractParam>,
