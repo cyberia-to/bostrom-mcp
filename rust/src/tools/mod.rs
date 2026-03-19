@@ -575,7 +575,6 @@ pub struct IbcTransferParams {
 
 // ── Mining params ──
 
-#[cfg(feature = "mining")]
 #[derive(Deserialize, JsonSchema)]
 pub struct MineProofParams {
     #[schemars(description = "Mining difficulty in leading zero bits (1-256)")]

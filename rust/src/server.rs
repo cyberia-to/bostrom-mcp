@@ -1117,7 +1117,6 @@ async fn li_claim_referral_rewards(
 
     // ── mining tool ──
 
-#[cfg(feature = "mining")]
 #[tool(description = "Mine a lithium proof using CPU. Generates random challenge, runs UniversalHash PoW solver, returns proof details. Optionally auto-submits on-chain.")]
 async fn li_mine_proof(
     &self,

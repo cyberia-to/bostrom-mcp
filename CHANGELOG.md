@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.8.1] - 2026-03-19
+
+### Changed
+- Made `li_mine_proof` tool always available — removed `#[cfg(feature = "mining")]` conditional compilation gates
+- Made `uhash-prover` and `uhash-core` non-optional dependencies (mining is always built-in)
+- Removed `[features]` section from Cargo.toml
+
+### Fixed
+- `li_mine_proof` tool not being discovered by some MCP clients due to conditional compilation
+
 ## [0.2.0] - 2026-02-26
 
 ### Added
