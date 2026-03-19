@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.8.1] - 2026-03-19
+## [0.8.3] - 2026-03-19
 
 ### Changed
 - Made `li_mine_proof` tool always available — removed `#[cfg(feature = "mining")]` conditional compilation gates

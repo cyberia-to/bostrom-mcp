@@ -1,6 +1,6 @@
 [package]
 name = "bostrom-mcp"
-version = "0.8.1"
+version = "0.8.3"
 edition = "2021"
 description = "85-tool MCP server for Bostrom blockchain: read chain state, sign transactions, mine Lithium proofs"
 license = "MIT"
